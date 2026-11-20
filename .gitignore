@@ -1,0 +1,18 @@
+# Dependencies & builds
+node_modules/
+dist/
+.vercel/
+
+# Environment secrets
+.env*
+!.env.example
+
+# Local handoff report
+HANDOFF_ANTIGRAVITY.md
+
+# OS & Editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

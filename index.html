@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoL Pro Draft & Fearless BO5 Architect — Saison 2026</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body class="min-h-screen flex flex-col selection:bg-amber-500/30 selection:text-amber-200">
+
+  <!-- TOP HEADER & GLOBAL CONTROLS -->
+  <header class="sticky top-0 z-40 bg-[#090f1d]/95 backdrop-blur-md border-b border-amber-500/25 px-3 py-2.5">
+    <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2">
+      <!-- Brand -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/30 via-sky-500/20 to-rose-500/30 hex-border-strong flex items-center justify-center">
+          <svg class="w-5 h-5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon>
+            <line x1="12" y1="22" x2="12" y2="15.5"></line>
+            <polyline points="22 8.5 12 15.5 2 8.5"></polyline>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-display text-sm sm:text-base font-bold tracking-wider text-amber-100 uppercase">LoL Fearless &amp; Draft Architect</h1>
+            <span class="text-[10px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">173 Champions • Patch 26.22</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Typologie officielle Riot (Classes &amp; Sous-classes) • Arborescence What-If (Blue/Red, First/Last Pick) • Scénarios Fearless BO5</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (Scrollable on Mobile) -->
+      <nav class="hidden sm:flex items-center bg-[#0d1627] p-1 rounded-lg border border-slate-800 gap-1 overflow-x-auto no-scrollbar max-w-full">
+        <button id="nav-btn-draft" onclick="switchMainView('draft')" class="px-2.5 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5 bg-amber-500/20 text-amber-200 border border-amber-500/40">
+          <span>⚔️</span>
+          <span>Simulateur Draft</span>
+        </button>
+        <button id="nav-btn-tree" onclick="switchMainView('tree')" class="px-2.5 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <span>🌿</span>
+          <span>Arborescence &amp; What-Ifs</span>
+        </button>
+        <button id="nav-btn-bo5" onclick="switchMainView('bo5')" class="px-2.5 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <span>🏆</span>
+          <span>Scénarios Fearless BO5</span>
+          <span id="bo5-locked-badge" class="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-500/25 text-rose-300 border border-rose-500/40">0 Lock</span>
+        </button>
+        <button id="nav-btn-roster" onclick="switchMainView('roster')" class="px-2.5 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <span>👥</span>
+          <span>Pools Joueurs &amp; Import</span>
+          <span id="roster-pool-badge" class="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500/25 text-amber-200 border border-amber-500/40">5 Joueurs</span>
+        </button>
+        <button id="nav-btn-champions" onclick="switchMainView('champions')" class="px-2.5 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <span>📚</span>
+          <span>173 Champions &amp; Tags Riot</span>
+        </button>
+      </nav>
+
+      <!-- Global Series & Side Bar -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <!-- Our Side Perspective -->
+        <div class="flex items-center bg-[#0d1627] rounded-lg p-0.5 border border-slate-800" title="Choisir le Side et la priorité de pick de votre équipe">
+          <button id="perspective-blue-btn" onclick="setTeamPerspective('BLUE')" class="px-2 py-1 rounded text-[11px] font-bold transition bg-sky-500/25 text-sky-300 border border-sky-500/50">
+            🔵 Blue (B1 First Pick)
+          </button>
+          <button id="perspective-red-btn" onclick="setTeamPerspective('RED')" class="px-2 py-1 rounded text-[11px] font-bold transition text-slate-400 hover:text-rose-300">
+            🔴 Red (R5 Last Pick)
+          </button>
+        </div>
+
+        <!-- Fearless Rule Mode -->
+        <select id="fearless-mode-select" onchange="setFearlessMode(this.value)" class="bg-[#0d1627] text-xs font-medium text-amber-200 border border-amber-500/30 rounded-lg px-2 py-1.5 focus:outline-none focus:border-amber-400">
+          <option value="HARD">🔥 Hard Fearless (2 Équipes verrouillées)</option>
+          <option value="SOFT">🛡️ Soft Fearless (Notre Équipe seule)</option>
+          <option value="STANDARD">⚡ Standard (Sans verrouillage BO)</option>
+        </select>
+
+        <!-- Preset & Export -->
+        <button onclick="loadProBO5ScenarioPreset()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 border border-indigo-500/40 transition" title="Charger un scénario BO5 complet jusqu'au Game 5 avec 40 champions verrouillés">
+          ⚡ Démo BO5 (Game 5)
+        </button>
+        <button onclick="openExportImportModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+          💾 Sauvegarder / Exporter
+        </button>
+      </div>
+    </div>
+
+    <!-- BO5 Game Switcher Sub-bar -->
+    <div class="max-w-[1600px] mx-auto mt-2 pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap items-center gap-1.5">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mr-1">Manche BO5 :</span>
+        <div id="game-tabs-container" class="flex items-center gap-1"></div>
+      </div>
+
+      <!-- Quick Slide-Over Volets (Drawers) & Active What-If Bans Bar -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button onclick="toggleSlideOverVolet('AI_TREE')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/40 transition flex items-center gap-1">
+          <span>🤖</span>
+          <span>Volet IA &amp; Arbre</span>
+        </button>
+        <button onclick="toggleSlideOverVolet('RADAR')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 transition flex items-center gap-1">
+          <span>📊</span>
+          <span>Volet Radar &amp; Comp</span>
+        </button>
+        <div class="hidden xl:flex items-center gap-1 text-xs ml-1">
+          <span class="text-amber-300 font-semibold">🧪 What-If :</span>
+          <span id="whatif-active-count" class="text-[11px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-200 border border-amber-500/30">Aucun What-If actif</span>
+        </div>
+        <button onclick="openWhatIfSimulatorModal()" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 transition">
+          + Tester « Et si X est banni ? »
+        </button>
+        <button onclick="clearAllWhatIfBans()" class="px-2 py-1 rounded-lg text-[11px] text-slate-400 hover:text-white bg-slate-800/70 hover:bg-slate-800 transition">
+          Réinitialiser What-Ifs
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-[1600px] w-full mx-auto p-3">
+
+    <!-- ==========================================
+         VIEW 1: SIMULATEUR DE DRAFT & SCÉNARIOS BO5
+         ========================================== -->
+    <section id="view-draft" class="space-y-3">
+      <!-- Draft Sequence Banner -->
+      <div class="bg-[#0e1626] hex-border rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div id="draft-phase-indicator" class="px-3 py-1.5 rounded-lg font-display font-bold text-xs uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-500/40">
+            Tour 1/20 • Blue Ban 1
+          </div>
+          <div>
+            <div id="draft-instruction-title" class="text-sm font-semibold text-white">
+              Sélectionnez un champion dans la grille centrale pour remplir l'emplacement actif
+            </div>
+            <div id="draft-perspective-subtitle" class="text-xs text-slate-400">
+              Perspective active : <strong class="text-sky-300">Blue Side (First Pick B1)</strong> — Cliquez sur n'importe quel slot Ban/Pick pour éditer ou tester un embranchement.
+            </div>
+          </div>
+        </div>
+
+        <!-- Draft Action Controls -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button onclick="stepDraftUndo()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            ↩️ Annuler dernier choix
+          </button>
+          <button onclick="autoFillRecommendedAction()" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-200 border border-emerald-500/50 transition" title="Choisir automatiquement un pick parmi les champions maîtrisés importés de votre équipe (Tier S/A/Flex) et l'arborescence">
+            ✨ Suggestion IA / Arbre
+          </button>
+          <button onclick="autoCompleteOurTeamFromPools()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 transition" title="Compléter tous les picks restants de notre équipe en utilisant les champions importés des 5 joueurs">
+            🤖 Compléter Équipe (Pools)
+          </button>
+          <button onclick="swapSidesCurrentGame()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            🔄 Inverser Blue/Red
+          </button>
+          <button onclick="resetCurrentGameDraft()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition">
+            🗑️ Vider Manche
+          </button>
+          <button onclick="advanceToNextGameInSeries()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 border border-amber-500/50 transition">
+            ⏭️ Valider &amp; Game Suivant (Fearless)
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Quick Draft Switcher & Mini Scoreboard (< 1024px) -->
+      <div class="lg:hidden bg-[#0e1626] hex-border rounded-xl p-2.5 space-y-2">
+        <div class="flex items-center justify-between gap-2 text-xs">
+          <span class="font-bold text-amber-200">📱 Mode Mobile :</span>
+          <span id="mobile-active-slot-pill" class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-500/40 font-mono text-[11px]">B1</span>
+        </div>
+        <div class="grid grid-cols-4 gap-1">
+          <button id="mob-draft-tab-pool" onclick="setMobileDraftSubView('POOL')" class="py-2 px-1.5 rounded-lg text-[11px] font-bold bg-amber-500/25 text-amber-200 border border-amber-500/50 text-center">
+            🎯 Grille &amp; IA
+          </button>
+          <button id="mob-draft-tab-blue" onclick="setMobileDraftSubView('BLUE')" class="py-2 px-1.5 rounded-lg text-[11px] font-bold bg-[#091326] text-sky-300 border border-sky-500/30 text-center">
+            🔵 Blue <span id="mob-blue-count">(3/5)</span>
+          </button>
+          <button id="mob-draft-tab-red" onclick="setMobileDraftSubView('RED')" class="py-2 px-1.5 rounded-lg text-[11px] font-bold bg-[#1c0d18] text-rose-300 border border-rose-500/30 text-center">
+            🔴 Red <span id="mob-red-count">(3/5)</span>
+          </button>
+          <button id="mob-draft-tab-all" onclick="setMobileDraftSubView('ALL')" class="py-2 px-1.5 rounded-lg text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700 text-center">
+            👁️ Tout
+          </button>
+        </div>
+        <!-- Mini interactive slot strip on mobile so user sees picks while browsing pool -->
+        <div id="mobile-mini-slots-strip" class="grid grid-cols-2 gap-1.5 pt-1"></div>
+      </div>
+
+      <!-- 3-Column Draft Board -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+
+        <!-- LEFT COLUMN: BLUE SIDE (FIRST PICK B1) -->
+        <div id="draft-col-blue" class="lg:col-span-3 bg-[#0c1424] border border-sky-500/35 rounded-xl p-3 blue-glow space-y-3">
+          <div class="flex items-center justify-between border-b border-sky-500/25 pb-2">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                <h2 class="font-display font-bold text-sm text-sky-300 uppercase tracking-wider">Blue Side</h2>
+                <span id="blue-our-team-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/25 text-sky-200 border border-sky-400/40 font-semibold">NOTRE ÉQUIPE</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Priorité <strong class="text-sky-200">First Pick (B1)</strong> &amp; Rotations B2-B3 / B4-B5</p>
+            </div>
+            <span class="text-xs font-mono font-bold text-sky-300 bg-sky-950/70 px-2 py-1 rounded border border-sky-500/30">B1 → B2/B3 → B4/B5</span>
+          </div>
+
+          <!-- Blue Column Internal Volets (Picks vs Radar) -->
+          <div class="grid grid-cols-2 gap-1 bg-[#070c16] p-1 rounded-lg border border-sky-500/20">
+            <button id="blue-volet-btn-picks" onclick="setTeamColumnVolet('BLUE', 'PICKS')" class="py-1 px-2 rounded text-[11px] font-bold bg-sky-500/25 text-sky-200 border border-sky-500/40 transition">
+              ⚔️ Picks &amp; Bans
+            </button>
+            <button id="blue-volet-btn-radar" onclick="setTeamColumnVolet('BLUE', 'RADAR')" class="py-1 px-2 rounded text-[11px] font-semibold text-slate-400 hover:text-sky-200 transition">
+              📊 Radar &amp; Dégâts
+            </button>
+          </div>
+
+          <!-- Blue Volet 1: Bans + Picks -->
+          <div id="blue-volet-picks" class="space-y-2.5">
+            <div>
+              <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                <span>Bans Phase 1 (1-3)</span>
+                <span>Bans Phase 2 (4-5)</span>
+              </div>
+              <div id="blue-bans-container" class="grid grid-cols-5 gap-1"></div>
+            </div>
+            <div id="blue-picks-container" class="space-y-1.5"></div>
+            <!-- Compact Damage Strip Always Visible -->
+            <div id="blue-mini-dmg-strip" class="pt-1"></div>
+          </div>
+
+          <!-- Blue Volet 2: Visual Radar & Detailed Riot Analytics -->
+          <div id="blue-volet-radar" class="hidden space-y-2">
+            <div id="blue-comp-analytics" class="bg-[#080e1a] rounded-lg p-2.5 border border-slate-800 space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- CENTER COLUMN: 173 CHAMPIONS POOL, FILTERS & TREE SUGGESTIONS -->
+        <div id="draft-col-pool" class="lg:col-span-6 bg-[#0e1626] hex-border rounded-xl p-3 space-y-3">
+
+          <!-- Live Decision Tree & What-If Context Bar -->
+          <div id="live-tree-advisor-banner" class="bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-rose-500/10 border border-amber-500/30 rounded-lg p-2.5"></div>
+
+          <!-- Multi-Criteria Filter Controls -->
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <!-- Search Input -->
+              <div class="relative flex-1 min-w-[180px]">
+                <input
+                  id="champ-search-input"
+                  type="text"
+                  oninput="handleChampionFilterChange()"
+                  placeholder="Rechercher parmi les 173 champions (ex. Ambessa, Mel, Yunara, Zaahen, Locke, Ornn...)"
+                  class="w-full bg-[#080d18] text-xs text-white placeholder-slate-500 rounded-lg pl-8 pr-7 py-2 border border-slate-700/80 focus:outline-none focus:border-amber-400"
+                />
+                <span class="absolute left-2.5 top-2 text-slate-400 text-xs">🔍</span>
+                <button onclick="clearChampSearch()" class="absolute right-2 top-2 text-slate-400 hover:text-white text-xs" title="Effacer">✕</button>
+              </div>
+
+              <!-- Team Player Pool Filter -->
+              <select id="filter-team-pool" onchange="handleChampionFilterChange()" class="bg-[#080d18] text-xs text-amber-200 border border-amber-500/40 rounded-lg px-2.5 py-2 focus:outline-none focus:border-amber-400" title="Filtrer selon les champions maîtrisés/préférés par les membres de votre équipe">
+                <option value="ALL">👥 Tous les Champions (173)</option>
+                <option value="TEAM_ALL">⭐ Tout le Pool Maîtrisé Équipe</option>
+                <option value="TEAM_S">👑 Tier S Uniquement (Picks Signatures)</option>
+                <option value="FLEX_ONLY">🔀 Flex Picks de l'Équipe (2+ Joueurs)</option>
+                <option value="ROLE:Top">🛡️ Pool Top Laner</option>
+                <option value="ROLE:Jungle">🌲 Pool Jungler</option>
+                <option value="ROLE:Mid">⚡ Pool Mid Laner</option>
+                <option value="ROLE:Bot">🏹 Pool Bot / ADC</option>
+                <option value="ROLE:Support">✨ Pool Support</option>
+              </select>
+
+              <!-- Riot Main Class & Subclass Filter -->
+              <select id="filter-riot-class" onchange="handleChampionFilterChange()" class="bg-[#080d18] text-xs text-slate-200 border border-slate-700/80 rounded-lg px-2.5 py-2 focus:outline-none focus:border-amber-400">
+                <option value="ALL">🏛️ Toutes Classes Riot (7 Classes / 13 Sous-classes)</option>
+                <optgroup label="🛡️ Tank (Tanks)">
+                  <option value="CLASS:Tank">Tous les Tanks</option>
+                  <option value="SUB:Vanguard">↳ Vanguard (Tank d'Engage / Offensif)</option>
+                  <option value="SUB:Warden">↳ Warden (Tank de Peel / Défensif)</option>
+                </optgroup>
+                <optgroup label="⚔️ Fighter (Combattants)">
+                  <option value="CLASS:Fighter">Tous les Fighters</option>
+                  <option value="SUB:Juggernaut">↳ Juggernaut (Colosse)</option>
+                  <option value="SUB:Diver">↳ Diver (Plongeur)</option>
+                </optgroup>
+                <optgroup label="🗡️ Slayer (Tueurs)">
+                  <option value="CLASS:Slayer">Tous les Slayers</option>
+                  <option value="SUB:Assassin">↳ Assassin (Infiltration / Burst)</option>
+                  <option value="SUB:Skirmisher">↳ Skirmisher (Duelliste / DPS mêlée)</option>
+                </optgroup>
+                <optgroup label="🔮 Mage (Mages)">
+                  <option value="CLASS:Mage">Tous les Mages</option>
+                  <option value="SUB:Burst">↳ Burst Mage (Isolation / Burst)</option>
+                  <option value="SUB:Battlemage">↳ Battlemage (DPS zone / Combat)</option>
+                  <option value="SUB:Artillery">↳ Artillery Mage (Longue portée / Poke)</option>
+                </optgroup>
+                <optgroup label="✨ Controller (Contrôleurs)">
+                  <option value="CLASS:Controller">Tous les Controllers</option>
+                  <option value="SUB:Enchanter">↳ Enchanter (Boucliers / Soins / Buffs)</option>
+                  <option value="SUB:Catcher">↳ Catcher (Accroche / Pick / Zone)</option>
+                </optgroup>
+                <optgroup label="🏹 Marksman &amp; Specialist">
+                  <option value="CLASS:Marksman">Marksman (Tireur DPS continu)</option>
+                  <option value="CLASS:Specialist">Specialist (Gameplay atypique / Unique)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Lane & Collapsible Advanced Filters Row -->
+            <div class="flex flex-wrap items-center justify-between gap-1.5">
+              <!-- Lanes -->
+              <div class="flex flex-wrap items-center gap-1" id="lane-filter-pills">
+                <button onclick="setLaneFilter('ALL')" data-lane="ALL" class="lane-pill px-2 py-1 rounded text-[11px] font-semibold bg-amber-500/25 text-amber-200 border border-amber-500/40">Tous Postes</button>
+                <button onclick="setLaneFilter('Top')" data-lane="Top" class="lane-pill px-2 py-1 rounded text-[11px] font-semibold bg-slate-800/80 text-slate-300 hover:text-white border border-slate-700">🛡️ Top</button>
+                <button onclick="setLaneFilter('Jungle')" data-lane="Jungle" class="lane-pill px-2 py-1 rounded text-[11px] font-semibold bg-slate-800/80 text-slate-300 hover:text-white border border-slate-700">🌲 Jungle</button>
+                <button onclick="setLaneFilter('Mid')" data-lane="Mid" class="lane-pill px-2 py-1 rounded text-[11px] font-semibold bg-slate-800/80 text-slate-300 hover:text-white border border-slate-700">⚡ Mid</button>
+                <button onclick="setLaneFilter('Bot')" data-lane="Bot" class="lane-pill px-2 py-1 rounded text-[11px] font-semibold bg-slate-800/80 text-slate-300 hover:text-white border border-slate-700">🏹 Bot / ADC</button>
+                <button onclick="setLaneFilter('Support')" data-lane="Support" class="lane-pill px-2 py-1 rounded text-[11px] font-semibold bg-slate-800/80 text-slate-300 hover:text-white border border-slate-700">✨ Support</button>
+              </div>
+
+              <!-- Damage Type Pills -->
+              <div class="flex flex-wrap items-center gap-1" id="dmg-filter-pills">
+                <button onclick="setDmgFilter('ALL')" data-dmg="ALL" class="dmg-pill px-2 py-1 rounded text-[11px] font-semibold bg-amber-500/25 text-amber-200 border border-amber-500/40">Tous Dégâts</button>
+                <button onclick="setDmgFilter('AD')" data-dmg="AD" class="dmg-pill px-2 py-1 rounded text-[11px] font-semibold bg-orange-500/15 text-orange-300 border border-orange-500/30 hover:bg-orange-500/25">🗡️ AD</button>
+                <button onclick="setDmgFilter('AP')" data-dmg="AP" class="dmg-pill px-2 py-1 rounded text-[11px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30 hover:bg-sky-500/25">🔮 AP</button>
+                <button onclick="setDmgFilter('Hybride')" data-dmg="Hybride" class="dmg-pill px-2 py-1 rounded text-[11px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25">⚖️ Hybride</button>
+                <button onclick="setDmgFilter('TRUE')" data-dmg="TRUE" class="dmg-pill px-2 py-1 rounded text-[11px] font-semibold bg-slate-100/15 text-white border border-slate-300/40 hover:bg-slate-100/25">💎 Dégâts Bruts</button>
+              </div>
+            </div>
+
+            <!-- Status bar & Toggle Fearless visibility -->
+            <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
+              <div id="champion-pool-counter">Affichage : 173 / 173 champions</div>
+              <div class="flex items-center gap-3">
+                <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                  <input id="hide-unavailable-checkbox" type="checkbox" onchange="handleChampionFilterChange()" class="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-0" />
+                  <span>Masquer champions Bannis / Picks / Fearless Lock</span>
+                </label>
+                <span class="text-slate-500 hidden sm:inline">• Clic gauche : Sélectionner | Clic sur « 🧪 » : Simuler What-If Ban</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Champion Grid -->
+          <div id="draft-champion-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2 max-h-[540px] overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- RIGHT COLUMN: RED SIDE (LAST PICK R5) -->
+        <div id="draft-col-red" class="lg:col-span-3 bg-[#190d16] border border-rose-500/35 rounded-xl p-3 red-glow space-y-3">
+          <div class="flex items-center justify-between border-b border-rose-500/25 pb-2">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <h2 class="font-display font-bold text-sm text-rose-300 uppercase tracking-wider">Red Side</h2>
+                <span id="red-our-team-badge" class="hidden text-[10px] px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-200 border border-rose-400/40 font-semibold">NOTRE ÉQUIPE</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Double réponse <strong class="text-rose-200">R1-R2</strong> &amp; <strong class="text-rose-200">Last Pick Counter (R5)</strong></p>
+            </div>
+            <span class="text-xs font-mono font-bold text-rose-300 bg-rose-950/70 px-2 py-1 rounded border border-rose-500/30">R1/R2 → R3/R4 → R5</span>
+          </div>
+
+          <!-- Red Column Internal Volets (Picks vs Radar) -->
+          <div class="grid grid-cols-2 gap-1 bg-[#11070d] p-1 rounded-lg border border-rose-500/20">
+            <button id="red-volet-btn-picks" onclick="setTeamColumnVolet('RED', 'PICKS')" class="py-1 px-2 rounded text-[11px] font-bold bg-rose-500/25 text-rose-200 border border-rose-500/40 transition">
+              ⚔️ Picks &amp; Bans
+            </button>
+            <button id="red-volet-btn-radar" onclick="setTeamColumnVolet('RED', 'RADAR')" class="py-1 px-2 rounded text-[11px] font-semibold text-slate-400 hover:text-rose-200 transition">
+              📊 Radar &amp; Dégâts
+            </button>
+          </div>
+
+          <!-- Red Volet 1: Bans + Picks -->
+          <div id="red-volet-picks" class="space-y-2.5">
+            <div>
+              <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                <span>Bans Phase 1 (1-3)</span>
+                <span>Bans Phase 2 (4-5)</span>
+              </div>
+              <div id="red-bans-container" class="grid grid-cols-5 gap-1"></div>
+            </div>
+            <div id="red-picks-container" class="space-y-1.5"></div>
+            <!-- Compact Damage Strip Always Visible -->
+            <div id="red-mini-dmg-strip" class="pt-1"></div>
+          </div>
+
+          <!-- Red Volet 2: Visual Radar & Detailed Riot Analytics -->
+          <div id="red-volet-radar" class="hidden space-y-2">
+            <div id="red-comp-analytics" class="bg-[#11080f] rounded-lg p-2.5 border border-slate-800 space-y-2"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 2: ARBORESCENCE DÉCISIONNELLE & WHAT-IFS
+         ========================================== -->
+    <section id="view-tree" class="hidden space-y-4">
+      <!-- Top Control Panel for Decision Tree -->
+      <div class="bg-[#0e1626] hex-border rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <h2 class="font-display text-base font-bold text-amber-200 uppercase tracking-wider">
+              Arborescence Stratégique de Draft &amp; Embranchements « What-If »
+            </h2>
+            <span id="tree-side-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/40">
+              Plan Blue Side — First Pick (B1)
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Modélisez vos plans de draft selon le Side (Blue B1 First Pick vs Red R1-R2 / R5 Last Pick) et préparez vos réponses automatiques si un champion clé est banni (« What-If X se fait ban »), pris par l'adversaire ou verrouillé par le Fearless BO5.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="tree-tab-blue" onclick="switchTreeSide('BLUE')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-sky-500/25 text-sky-200 border border-sky-500/50">
+            🔵 Arbre Blue Side (First Pick B1 → B2/B3 → B4/B5)
+          </button>
+          <button id="tree-tab-red" onclick="switchTreeSide('RED')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 hover:text-rose-200 border border-slate-700">
+            🔴 Arbre Red Side (R1-R2 Réponse → R3/R4 → R5 Last Pick)
+          </button>
+          <button onclick="openAddTreeNodeModal(null)" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 border border-amber-500/50 transition">
+            + Ajouter Nœud Racine / Plan
+          </button>
+          <button onclick="resetDecisionTreesToDefault()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            🔄 Restaurer Arbres Pro
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive What-If Sandbox + Tree Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+
+        <!-- Left Column: Interactive What-If Ban & Fearless Stress-Tester -->
+        <div class="lg:col-span-4 bg-[#0e1626] hex-border rounded-xl p-4 space-y-4">
+          <div>
+            <h3 class="font-display text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
+              <span>🧪</span>
+              <span>Simulateur de Stress « What-If X se fait Ban »</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Activez ou désactivez des bans hypothétiques sur les champions de votre arbre (ou simulez les verrous Fearless des manches précédentes) pour voir instantanément quelle branche de repli (« Pivot ») s'active.
+            </p>
+          </div>
+
+          <!-- Quick toggles for champions present in the current tree -->
+          <div class="space-y-2">
+            <div class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+              <span>Champions clés de l'arborescence active :</span>
+              <span class="text-[11px] text-slate-400">Cliquez pour bannir / libérer</span>
+            </div>
+            <div id="tree-key-champions-toggles" class="flex flex-wrap gap-1.5"></div>
+          </div>
+
+          <!-- Add any champion to What-If Ban -->
+          <div class="pt-2 border-t border-slate-800 space-y-2">
+            <label class="block text-xs font-semibold text-slate-300">Ajouter un « What-If Ban » parmi les 173 champions :</label>
+            <div class="flex gap-1.5">
+              <select id="whatif-quick-select" class="flex-1 bg-[#080d18] text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-2 focus:outline-none focus:border-amber-400"></select>
+              <button onclick="addSelectedWhatIfBan()" class="px-3 py-2 rounded-lg text-xs font-bold bg-rose-500/25 hover:bg-rose-500/35 text-rose-200 border border-rose-500/40 transition">
+                Bannir (What-If)
+              </button>
+            </div>
+          </div>
+
+          <!-- Optimal Path Resolution Summary -->
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-300">✅ Chemin de Draft Résolu (Plan Actif)</h4>
+              <button onclick="applyResolvedTreeToCurrentGame()" class="px-2.5 py-1 rounded text-[11px] font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/40 transition">
+                Appliquer au Simulateur (Game actif) →
+              </button>
+            </div>
+            <div id="tree-resolved-path-summary" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- Right Column: Visual Interactive Decision Tree -->
+        <div class="lg:col-span-8 bg-[#0e1626] hex-border rounded-xl p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+            <div class="flex items-center gap-3 text-xs">
+              <span class="flex items-center gap-1 text-emerald-300 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span> Branche Active (Optimal)</span>
+              <span class="flex items-center gap-1 text-rose-300 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> Déclencheur « What-If Ban / Lock »</span>
+              <span class="flex items-center gap-1 text-amber-300 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> Pivot / Counter-Pick</span>
+            </div>
+            <div class="text-[11px] text-slate-400">
+              Chaque nœud permet d'ajouter un sous-scénario « Et si ce champion est banni ? »
+            </div>
+          </div>
+
+          <div id="decision-tree-canvas" class="space-y-4"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 3: SCÉNARIOS FEARLESS DRAFT BO5
+         ========================================== -->
+    <section id="view-bo5" class="hidden space-y-4">
+      <!-- BO5 Overview Header -->
+      <div class="bg-[#0e1626] hex-border rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="font-display text-base font-bold text-amber-200 uppercase tracking-wider">
+            Planificateur de Série Fearless Draft — Jusqu'en BO5 (Games 1 à 5)
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            En mode <strong class="text-amber-200">Hard Fearless</strong>, chaque champion joué lors d'une manche précédente est banni pour les deux équipes jusqu'à la fin du BO5 (jusqu'à 40 champions verrouillés avant le début du Game 5 + 10 bans en Game 5 = 50 champions hors-jeu).
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="loadProBO5ScenarioPreset()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-500/25 hover:bg-indigo-500/35 text-indigo-200 border border-indigo-500/40 transition">
+            ⚡ Charger Scénario Pro BO5 (Games 1 à 4 remplis → Préparer Game 5)
+          </button>
+          <button onclick="clearEntireBO5Series()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition">
+            🗑️ Réinitialiser toute la série BO5
+          </button>
+        </div>
+      </div>
+
+      <!-- BO5 Segmented Volets Bar (No more endless vertical scroll!) -->
+      <div class="flex flex-wrap items-center gap-2 bg-[#0b1220] p-1.5 rounded-xl border border-slate-800">
+        <button id="bo5-volet-btn-games" onclick="switchBO5Volet('GAMES')" class="px-3.5 py-2 rounded-lg text-xs font-bold transition volet-tab-active border">
+          🎮 Volet 1 : Tableau des 5 Manches (Games 1 à 5)
+        </button>
+        <button id="bo5-volet-btn-pinch" onclick="switchBO5Volet('PINCH')" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-transparent transition">
+          📊 Volet 2 : Épuisement par Classe Riot (Pinch Analysis)
+        </button>
+        <button id="bo5-volet-btn-graveyard" onclick="switchBO5Volet('GRAVEYARD')" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-transparent transition flex items-center gap-1.5">
+          <span>🔒 Volet 3 : Cimetière Fearless Cumulé</span>
+          <span id="bo5-graveyard-count" class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-rose-500/25 text-rose-300 border border-rose-500/40">0 Lock</span>
+        </button>
+      </div>
+
+      <!-- BO5 Volet 1: 5 Games Cards Grid -->
+      <div id="bo5-volet-games" class="block">
+        <div id="bo5-games-matrix" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3"></div>
+      </div>
+
+      <!-- BO5 Volet 2: Riot Subclass & Role Depletion Matrix -->
+      <div id="bo5-volet-pinch" class="hidden bg-[#0e1626] hex-border rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display text-sm font-bold text-amber-200 uppercase tracking-wider">
+            📊 Analyse d'Épuisement du Pool par Typologie Riot (Pinch Analysis)
+          </h3>
+          <span class="text-xs text-slate-400">Disponibilité pour la manche active</span>
+        </div>
+        <p class="text-xs text-slate-400">
+          Identifiez quelles classes Riot (<span class="text-slate-200">Vanguards</span>, <span class="text-slate-200">Marksmen</span>, <span class="text-slate-200">Enchanters</span>, <span class="text-slate-200">Battlemages</span>) sont les plus appauvries par le Fearless Draft pour cibler vos bans en Game 4 et Game 5 :
+        </p>
+        <div id="bo5-depletion-analytics" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5"></div>
+      </div>
+
+      <!-- BO5 Volet 3: Cumulative Fearless Graveyard -->
+      <div id="bo5-volet-graveyard" class="hidden bg-[#0e1626] hex-border rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display text-sm font-bold text-rose-300 uppercase tracking-wider">
+            🔒 Cimetière Fearless Cumulé (Champions Déjà Joués dans la Série)
+          </h3>
+        </div>
+        <p class="text-xs text-slate-400">
+          Galerie visuelle de tous les champions consommés lors des manches précédentes et indisponibles pour le Game actif :
+        </p>
+        <div id="bo5-graveyard-list" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 max-h-[420px] overflow-y-auto p-1"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 4: ENCYCLOPÉDIE & ÉDITEUR DES 173 CHAMPIONS
+         ========================================== -->
+    <section id="view-champions" class="hidden space-y-4">
+      <!-- Header & Summary of Riot Typology -->
+      <div class="bg-[#0e1626] hex-border rounded-xl p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="font-display text-base font-bold text-amber-200 uppercase tracking-wider">
+              Base de Données Exhaustive des 173 Champions &amp; Typologie Riot Games (2026)
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Chaque champion est indexé selon sa <strong class="text-slate-200">Classe et Sous-classe officielle Riot</strong> (Tank [Vanguard, Warden], Fighter [Juggernaut, Diver], Slayer [Assassin, Skirmisher], Mage [Burst, Battlemage, Artillery], Controller [Enchanter, Catcher], Marksman, Specialist), ses voies et son profil de dégâts (AD, AP, Hybride, Dégâts Bruts). Vous pouvez éditer les tags de n'importe quel champion.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="resetCustomChampionTags()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+              🔄 Réinitialiser Tags Officiels Riot
+            </button>
+          </div>
+        </div>
+
+        <!-- Riot Typology Legend Pills -->
+        <div id="riot-class-summary-cards" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-2"></div>
+      </div>
+
+      <!-- Encyclopedia Filter Bar -->
+      <div class="bg-[#0e1626] hex-border rounded-xl p-3 flex flex-wrap items-center gap-2">
+        <input
+          id="enc-search-input"
+          type="text"
+          oninput="renderEncyclopediaTable()"
+          placeholder="Filtrer un champion (ex. Aatrox, K'Sante, Mel, Yunara, Zaahen, Locke...)"
+          class="flex-1 min-w-[220px] bg-[#080d18] text-xs text-white placeholder-slate-500 rounded-lg px-3 py-2 border border-slate-700 focus:outline-none focus:border-amber-400"
+        />
+        <select id="enc-class-select" onchange="renderEncyclopediaTable()" class="bg-[#080d18] text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-2">
+          <option value="ALL">Toutes Classes &amp; Sous-classes Riot</option>
+          <option value="SUB:Vanguard">Tank — Vanguard (Engage)</option>
+          <option value="SUB:Warden">Tank — Warden (Peel)</option>
+          <option value="SUB:Juggernaut">Fighter — Juggernaut (Colosse)</option>
+          <option value="SUB:Diver">Fighter — Diver (Plongeur)</option>
+          <option value="SUB:Assassin">Slayer — Assassin</option>
+          <option value="SUB:Skirmisher">Slayer — Skirmisher (Duelliste)</option>
+          <option value="SUB:Burst">Mage — Burst</option>
+          <option value="SUB:Battlemage">Mage — Battlemage</option>
+          <option value="SUB:Artillery">Mage — Artillery (Poke)</option>
+          <option value="SUB:Enchanter">Controller — Enchanter</option>
+          <option value="SUB:Catcher">Controller — Catcher</option>
+          <option value="SUB:Marksman">Marksman (Tireur)</option>
+          <option value="SUB:Specialist">Specialist (Spécialiste)</option>
+        </select>
+        <select id="enc-dmg-select" onchange="renderEncyclopediaTable()" class="bg-[#080d18] text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-2">
+          <option value="ALL">Tous Types de Dégâts</option>
+          <option value="AD">AD (Physique)</option>
+          <option value="AP">AP (Magique)</option>
+          <option value="Hybride">Hybride (Mixte AD/AP)</option>
+          <option value="TRUE">Avec Dégâts Bruts (True Dmg)</option>
+        </select>
+        <select id="enc-lane-select" onchange="renderEncyclopediaTable()" class="bg-[#080d18] text-xs text-slate-200 border border-slate-700 rounded-lg px-2.5 py-2">
+          <option value="ALL">Toutes Voies (Lanes)</option>
+          <option value="Top">Top</option>
+          <option value="Jungle">Jungle</option>
+          <option value="Mid">Mid</option>
+          <option value="Bot">Bot / ADC</option>
+          <option value="Support">Support</option>
+        </select>
+        <span id="enc-count-badge" class="text-xs font-semibold text-amber-300 px-2">173 champions</span>
+      </div>
+
+      <!-- Encyclopedia Table -->
+      <div class="bg-[#0e1626] hex-border rounded-xl overflow-hidden">
+        <div class="overflow-x-auto max-h-[620px]">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-[#090e1a] text-slate-300 uppercase text-[11px] sticky top-0 z-10 border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Champion</th>
+                <th class="py-2.5 px-3">Classe Principale Riot</th>
+                <th class="py-2.5 px-3">Sous-classe &amp; Hybride Riot</th>
+                <th class="py-2.5 px-3">Type de Dégâts</th>
+                <th class="py-2.5 px-3">Voies (Lanes)</th>
+                <th class="py-2.5 px-3">Statut Série BO5</th>
+                <th class="py-2.5 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="encyclopedia-table-body" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 5: ROSTER & CHAMPION POOLS (PICKS PRÉFÉRÉS / MAÎTRISÉS)
+         ========================================== -->
+    <section id="view-roster" class="hidden space-y-4">
+      <!-- Top Header & Actions -->
+      <div class="bg-[#0e1626] hex-border rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="font-display text-base font-bold text-amber-200 uppercase tracking-wider">
+            👥 Roster de l'Équipe &amp; Import des Picks Préférés / Maîtrisés
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Assignez les champions maîtrisés de chaque joueur par palier de confort (<strong class="text-amber-300">Tier S : Signature / Main</strong>, <strong class="text-sky-300">Tier A : Maîtrisé / Confort</strong>, <strong class="text-emerald-300">Tier B : Pocket / Counter</strong>). Ils sont automatiquement mis en avant dans le Simulateur de Draft, l'Arborescence et l'analyse d'épuisement Fearless BO5.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openBulkPoolImportModal()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 border border-amber-500/50 transition">
+            📥 Importer / Coller Liste (CSV, Texte ou JSON)
+          </button>
+          <button onclick="syncDecisionTreesFromImportedRoster()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-500/25 hover:bg-sky-500/35 text-sky-200 border border-sky-500/50 transition" title="Mettre à jour les arbres Blue et Red avec les champions Tier S/A/Flex importés de vos 5 joueurs">
+            🌿 Synchroniser l'Arbre IA avec ces Pools
+          </button>
+          <button onclick="exportRosterPoolsToFile()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/40 transition">
+            ⬇️ Exporter Pools (.json)
+          </button>
+          <button onclick="resetDefaultTeamRoster()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+            🔄 Restaurer Roster Démo
+          </button>
+        </div>
+      </div>
+
+      <!-- Flex Picks & Team Pool Synergy Banner -->
+      <div id="roster-flex-synergy-banner" class="bg-[#0e1626] hex-border rounded-xl p-4"></div>
+
+      <!-- Roster Role Volet Switcher -->
+      <div class="flex flex-wrap items-center gap-1.5 bg-[#0b1220] p-1.5 rounded-xl border border-slate-800">
+        <button onclick="setRosterRoleVolet('ALL')" data-rvolet="ALL" class="roster-volet-btn px-3 py-1.5 rounded-lg text-xs font-bold volet-tab-active border">👥 Vue 5 Joueurs</button>
+        <button onclick="setRosterRoleVolet('Top')" data-rvolet="Top" class="roster-volet-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-transparent">🛡️ Top Laner</button>
+        <button onclick="setRosterRoleVolet('Jungle')" data-rvolet="Jungle" class="roster-volet-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-transparent">🌲 Jungler</button>
+        <button onclick="setRosterRoleVolet('Mid')" data-rvolet="Mid" class="roster-volet-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-transparent">⚡ Mid Laner</button>
+        <button onclick="setRosterRoleVolet('Bot')" data-rvolet="Bot" class="roster-volet-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-transparent">🏹 Bot / ADC</button>
+        <button onclick="setRosterRoleVolet('Support')" data-rvolet="Support" class="roster-volet-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-transparent">✨ Support</button>
+      </div>
+
+      <!-- 5 Players Cards Grid -->
+      <div id="roster-players-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3"></div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       MODAL 1: ADD / EDIT DECISION TREE NODE
+       ========================================== -->
+  <div id="tree-node-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] hex-border-strong rounded-xl max-h-[90vh] overflow-y-auto max-w-lg w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <h3 id="tree-modal-title" class="font-display text-sm font-bold text-amber-200 uppercase tracking-wider">
+          Ajouter un Nœud / Embranchement « What-If »
+        </h3>
+        <button onclick="closeTreeNodeModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <input type="hidden" id="tree-node-parent-id" value="" />
+      <input type="hidden" id="tree-node-edit-id" value="" />
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Type de Condition / Embranchement :</label>
+          <select id="tree-node-type" class="w-full bg-[#080d18] text-slate-200 border border-slate-700 rounded-lg px-3 py-2">
+            <option value="OPENING">🎯 Ouverture / Priorité Principale (Si disponible)</option>
+            <option value="WHATIF_BAN">🚫 What-If : Si le champion cible est BANNI (ou Fearless Lock)</option>
+            <option value="WHATIF_PICK">⚔️ What-If : Si l'adversaire PICK ce champion</option>
+            <option value="COUNTER_LAST">👑 Last Pick / Counter-Pick Conditionnel (B4-B5 / R5)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Slot / Rotation de Draft :</label>
+            <select id="tree-node-slot" class="w-full bg-[#080d18] text-slate-200 border border-slate-700 rounded-lg px-3 py-2">
+              <option value="B1 (First Pick)">B1 (First Pick Blue)</option>
+              <option value="R1-R2 (Double Rotation)">R1-R2 (Double Réponse Red)</option>
+              <option value="B2-B3 (Rotation Phase 1)">B2-B3 (Rotation Blue Phase 1)</option>
+              <option value="R3 (Fin Phase 1)">R3 (Clôture Phase 1 Red)</option>
+              <option value="R4 (Ouverture Phase 2)">R4 (Ouverture Phase 2 Red)</option>
+              <option value="B4-B5 (Last Rotation Blue)">B4-B5 (Derniers Picks Blue)</option>
+              <option value="R5 (Last Pick Counter)">R5 (Last Pick Counter Red)</option>
+              <option value="Ban Phase 1 / 2">Ban Stratégique</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Si bloqué (Trigger Champion) :</label>
+            <select id="tree-node-trigger-champ" class="w-full bg-[#080d18] text-slate-200 border border-slate-700 rounded-lg px-3 py-2"></select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Champion à Verrouiller (Action / Pivot) :</label>
+            <select id="tree-node-action-champ" class="w-full bg-[#080d18] text-slate-200 border border-slate-700 rounded-lg px-3 py-2"></select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Alternative / Backup (Si aussi bloqué) :</label>
+            <select id="tree-node-backup-champ" class="w-full bg-[#080d18] text-slate-200 border border-slate-700 rounded-lg px-3 py-2"></select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Note Stratégique &amp; Condition de Victoire :</label>
+          <input
+            id="tree-node-note"
+            type="text"
+            placeholder="Ex. Si Ornn est banni, pivoter sur K'Sante Warden ou basculer AP Mid pour équilibrer les dégâts..."
+            class="w-full bg-[#080d18] text-white border border-slate-700 rounded-lg px-3 py-2"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button onclick="closeTreeNodeModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:text-white">
+          Annuler
+        </button>
+        <button onclick="saveTreeNodeFromModal()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 border border-amber-500/50">
+          Enregistrer dans l'Arbre
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: WHAT-IF BAN SIMULATOR MODAL
+       ========================================== -->
+  <div id="whatif-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] hex-border-strong rounded-xl max-h-[90vh] overflow-y-auto max-w-xl w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <h3 class="font-display text-sm font-bold text-amber-200 uppercase tracking-wider">
+          🧪 Testeur d'Hypothèses « What-If X se fait ban »
+        </h3>
+        <button onclick="closeWhatIfSimulatorModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-300">
+        Simulez instantanément le bannissement d'un ou plusieurs champions clés avant ou pendant la draft. Les champions cochés ci-dessous sont marqués comme <strong class="text-rose-300">Bannis en Simulation (What-If)</strong> dans le pool et déclenchent automatiquement les branches de secours de votre Arborescence Décisionnelle.
+      </p>
+
+      <div class="flex gap-2">
+        <select id="modal-whatif-select" class="flex-1 bg-[#080d18] text-xs text-white border border-slate-700 rounded-lg px-3 py-2"></select>
+        <button onclick="addWhatIfFromModalSelect()" class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 border border-amber-500/50">
+          + Simuler Ban de ce Champion
+        </button>
+      </div>
+
+      <div class="space-y-1.5">
+        <div class="text-xs font-semibold text-slate-400">Bans « What-If » actuellement actifs :</div>
+        <div id="modal-whatif-active-list" class="flex flex-wrap gap-1.5 min-h-[44px] p-2.5 rounded-lg bg-[#080d18] border border-slate-800"></div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <button onclick="clearAllWhatIfBans()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30">
+          Vider tous les What-Ifs
+        </button>
+        <button onclick="closeWhatIfSimulatorModal()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/25 text-emerald-200 border border-emerald-500/40">
+          Terminé
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3: EDIT CHAMPION TAGS MODAL
+       ========================================== -->
+  <div id="edit-champ-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] hex-border-strong rounded-xl max-h-[90vh] overflow-y-auto max-w-md w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <h3 id="edit-champ-modal-title" class="font-display text-sm font-bold text-amber-200 uppercase tracking-wider">
+          Modifier Tags du Champion
+        </h3>
+        <button onclick="closeEditChampionModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <input type="hidden" id="edit-champ-id" value="" />
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Sous-classe Principale (Typologie Riot) :</label>
+          <select id="edit-champ-subclass" class="w-full bg-[#080d18] text-white border border-slate-700 rounded-lg px-3 py-2">
+            <option value="Vanguard">Tank — Vanguard (Engage)</option>
+            <option value="Warden">Tank — Warden (Peel)</option>
+            <option value="Juggernaut">Fighter — Juggernaut (Colosse)</option>
+            <option value="Diver">Fighter — Diver (Plongeur)</option>
+            <option value="Assassin">Slayer — Assassin</option>
+            <option value="Skirmisher">Slayer — Skirmisher (Duelliste)</option>
+            <option value="Burst">Mage — Burst</option>
+            <option value="Battlemage">Mage — Battlemage</option>
+            <option value="Artillery">Mage — Artillery</option>
+            <option value="Enchanter">Controller — Enchanter</option>
+            <option value="Catcher">Controller — Catcher</option>
+            <option value="Marksman">Marksman (Tireur)</option>
+            <option value="Specialist">Specialist (Spécialiste)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Type de Dégâts :</label>
+          <select id="edit-champ-dmg" class="w-full bg-[#080d18] text-white border border-slate-700 rounded-lg px-3 py-2">
+            <option value="AD">AD (Physique)</option>
+            <option value="AP">AP (Magique)</option>
+            <option value="Hybride">Hybride (Mixte AD/AP)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="edit-champ-truedmg" class="rounded bg-slate-900 border-slate-700 text-amber-500" />
+            <span class="font-semibold text-slate-200">Possède des Dégâts Bruts significatifs (True Damage)</span>
+          </label>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Voies (Lanes) :</label>
+          <div class="flex flex-wrap gap-2" id="edit-champ-lanes-checks">
+            <label class="flex items-center gap-1 bg-[#080d18] px-2.5 py-1.5 rounded border border-slate-700"><input type="checkbox" value="Top" class="edit-lane-cb" /> Top</label>
+            <label class="flex items-center gap-1 bg-[#080d18] px-2.5 py-1.5 rounded border border-slate-700"><input type="checkbox" value="Jungle" class="edit-lane-cb" /> Jungle</label>
+            <label class="flex items-center gap-1 bg-[#080d18] px-2.5 py-1.5 rounded border border-slate-700"><input type="checkbox" value="Mid" class="edit-lane-cb" /> Mid</label>
+            <label class="flex items-center gap-1 bg-[#080d18] px-2.5 py-1.5 rounded border border-slate-700"><input type="checkbox" value="Bot" class="edit-lane-cb" /> Bot</label>
+            <label class="flex items-center gap-1 bg-[#080d18] px-2.5 py-1.5 rounded border border-slate-700"><input type="checkbox" value="Support" class="edit-lane-cb" /> Support</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button onclick="closeEditChampionModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300">Annuler</button>
+        <button onclick="saveEditedChampionTags()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-amber-500/25 text-amber-200 border border-amber-500/50">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 4: EXPORT / IMPORT & STANDALONE EXECUTABLE
+       ========================================== -->
+  <div id="export-import-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] hex-border-strong rounded-xl max-h-[90vh] overflow-y-auto max-w-2xl w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <h3 class="font-display text-sm font-bold text-amber-200 uppercase tracking-wider">
+          💾 Sauvegarde, Export JSON &amp; Fichier Exécutable Autonome
+        </h3>
+        <button onclick="closeExportImportModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-300">
+        Exportez ou importez l'intégralité de votre série BO5 Fearless, vos arborescences Blue/Red et vos tags personnalisés au format JSON, ou téléchargez une copie exécutable `.html` autonome pour l'utiliser hors-ligne sur votre PC.
+      </p>
+
+      <div class="flex flex-wrap gap-2">
+        <button onclick="copyStateJsonToClipboard()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40">
+          📋 Copier le JSON dans le Presse-Papiers
+        </button>
+        <button onclick="downloadStandaloneJsonFile()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/40">
+          ⬇️ Télécharger Scénario (.json)
+        </button>
+        <button onclick="downloadStandaloneExecutableHtml()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 border border-amber-500/50">
+          💻 Télécharger Logiciel Exécutable Autonome (.html)
+        </button>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Données JSON du Scénario (Modifiable pour Import) :</label>
+        <textarea id="export-import-textarea" rows="7" class="w-full bg-[#080d18] font-mono text-[11px] text-emerald-300 border border-slate-700 rounded-lg p-2.5 focus:outline-none focus:border-amber-400"></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <button onclick="importStateFromJsonTextarea()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-500/25 hover:bg-indigo-500/35 text-indigo-200 border border-indigo-500/40">
+          📥 Importer et Appliquer ce JSON
+        </button>
+        <button onclick="closeExportImportModal()" class="px-4 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:text-white">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 5: BULK IMPORT / PASTE TEAM CHAMPION POOLS
+       ========================================== -->
+  <div id="pool-import-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0e1626] hex-border-strong rounded-xl max-h-[90vh] overflow-y-auto max-w-2xl w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <h3 class="font-display text-sm font-bold text-amber-200 uppercase tracking-wider">
+          📥 Importer les Picks Préférés / Maîtrisés de l'Équipe
+        </h3>
+        <button onclick="closeBulkPoolImportModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <div class="space-y-2 text-xs text-slate-300">
+        <p>
+          Importez un fichier (`.txt`, `.csv`, `.json`) ou collez directement les champions maîtrisés de vos 5 joueurs. Le parseur reconnaît automatiquement les 173 champions et les paliers <strong class="text-amber-300">(S)</strong>, <strong class="text-sky-300">(A)</strong> ou <strong class="text-emerald-300">(B)</strong> :
+        </p>
+        <div class="p-2.5 rounded-lg bg-[#080d18] border border-slate-800 font-mono text-[11px] text-slate-400">
+          Exemple de format texte / CSV (1 ligne par joueur) :<br/>
+          <span class="text-amber-200">Top | Zeus | K'Sante (S), Ambessa (S), Ornn (A), Zaahen (A), Gwen (B), Rumble (B)</span><br/>
+          <span class="text-sky-200">Jungle | Oner | Sejuani (S), Vi (S), Wukong (A), Skarner (A), Lee Sin (B), Poppy (B)</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <label class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 cursor-pointer transition">
+          📂 Charger un fichier (.txt, .csv, .json)
+          <input id="pool-file-input" type="file" accept=".txt,.csv,.json" onchange="handlePoolFileUpload(this)" class="hidden" />
+        </label>
+        <div class="flex items-center gap-2">
+          <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+            <input id="pool-import-merge-cb" type="checkbox" class="rounded bg-slate-900 border-slate-700 text-amber-500" />
+            <span>Fusionner avec les picks existants (au lieu de remplacer)</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Texte / CSV ou JSON des Champion Pools :</label>
+        <textarea
+          id="pool-import-textarea"
+          rows="8"
+          class="w-full bg-[#080d18] font-mono text-xs text-emerald-300 border border-slate-700 rounded-lg p-3 focus:outline-none focus:border-amber-400"
+        ></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <button onclick="fillSamplePoolImportText()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-200 border border-slate-700">
+          ✨ Remplir Exemple Pro
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeBulkPoolImportModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:text-white">
+            Annuler
+          </button>
+          <button onclick="applyBulkPoolImport()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 border border-amber-500/50">
+            ✅ Importer les Champion Pools
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       SLIDE-OVER DRAWER ("VOLET LATÉRAL COULISSANT IA, ARBRE & RADAR")
+       ========================================== -->
+  <div id="slideover-volet-overlay" class="fixed inset-0 z-50 hidden drawer-backdrop flex justify-end">
+    <div class="bg-[#0b1322] border-l border-amber-500/40 w-full max-w-xl h-full flex flex-col justify-between shadow-2xl overflow-hidden">
+      <!-- Drawer Header -->
+      <div class="p-4 bg-[#080d18] border-b border-slate-800 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <button id="drawer-tab-ai" onclick="switchSlideOverTab('AI_TREE')" class="px-3 py-1.5 rounded-lg text-xs font-bold volet-tab-active border">
+            🤖 Volet IA &amp; Arbre What-If
+          </button>
+          <button id="drawer-tab-radar" onclick="switchSlideOverTab('RADAR')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-transparent">
+            📊 Volet Radar Blue vs Red
+          </button>
+        </div>
+        <button onclick="closeSlideOverVolet()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold">
+          ✕ Fermer Volet
+        </button>
+      </div>
+
+      <!-- Drawer Body (Scrollable independently) -->
+      <div id="slideover-volet-body" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+
+      <!-- Drawer Footer -->
+      <div class="p-3 bg-[#080d18] border-t border-slate-800 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400">Cliquez sur une suggestion pour l'assigner directement au slot actif</span>
+        <button onclick="closeSlideOverVolet()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/25 text-amber-200 border border-amber-500/40">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE FIXED BOTTOM NAVIGATION BAR (< 640px) -->
+  <nav class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#080d19]/95 backdrop-blur-md border-t border-amber-500/30 grid grid-cols-5 py-1 px-1">
+    <button id="mob-nav-draft" onclick="switchMainView('draft')" class="flex flex-col items-center justify-center py-1 rounded-lg text-[10px] font-bold text-amber-300 bg-amber-500/15">
+      <span class="text-sm">⚔️</span>
+      <span>Draft</span>
+    </button>
+    <button id="mob-nav-roster" onclick="switchMainView('roster')" class="flex flex-col items-center justify-center py-1 rounded-lg text-[10px] font-medium text-slate-400">
+      <span class="text-sm">👥</span>
+      <span>Pools</span>
+    </button>
+    <button id="mob-nav-tree" onclick="switchMainView('tree')" class="flex flex-col items-center justify-center py-1 rounded-lg text-[10px] font-medium text-slate-400">
+      <span class="text-sm">🌿</span>
+      <span>Arbre</span>
+    </button>
+    <button id="mob-nav-bo5" onclick="switchMainView('bo5')" class="flex flex-col items-center justify-center py-1 rounded-lg text-[10px] font-medium text-slate-400">
+      <span class="text-sm">🏆</span>
+      <span>BO5</span>
+    </button>
+    <button id="mob-nav-champions" onclick="switchMainView('champions')" class="flex flex-col items-center justify-center py-1 rounded-lg text-[10px] font-medium text-slate-400">
+      <span class="text-sm">📚</span>
+      <span>173 Ch.</span>
+    </button>
+  </nav>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 pointer-events-none flex flex-col gap-2"></div>
+
+  <!-- APPLICATION SCRIPT -->
+  <!-- Modular Application Scripts -->
+  <script src="src/data/champions2026.js"></script>
+  <script src="src/engine/visuals.js"></script>
+  <script src="src/data/presets.js"></script>
+  <script src="src/state/store.js"></script>
+  <script src="src/engine/fearless.js"></script>
+  <script src="src/engine/draftActions.js"></script>
+  <script src="src/engine/analytics.js"></script>
+  <script src="src/engine/roster.js"></script>
+  <script src="src/ui/core.js"></script>
+  <script src="src/ui/draftView.js"></script>
+  <script src="src/ui/treeView.js"></script>
+  <script src="src/ui/bo5View.js"></script>
+  <script src="src/ui/encyclopediaView.js"></script>
+  <script src="src/ui/modals.js"></script>
+  <script src="src/ui/drawers.js"></script>
+  <script src="src/services/config.js"></script>
+  <script src="src/services/collabSync.js"></script>
+  <script src="src/services/lcuBridge.js"></script>
+  <script src="src/ui/app.js"></script>
+</body>
+</html>
