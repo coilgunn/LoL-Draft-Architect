@@ -1,5 +1,6 @@
 :root {
-  --bg-hex-dark: #070b14;
+  --bg-hex-dark: #060a12;
+  --bg-hex-surface: #0b1220;
   --bg-hex-card: #0e1626;
   --bg-hex-elevated: #152138;
   --gold-hex: #c8aa6e;
@@ -7,52 +8,110 @@
   --blue-side: #0ea5e9;
   --red-side: #f43f5e;
 }
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-hex-dark);
   color: #e2e8f0;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
+
 .font-display {
   font-family: 'Cinzel', serif;
 }
+
 .hex-border {
-  border: 1px solid rgba(200, 170, 110, 0.28);
+  border: 1px solid rgba(200, 170, 110, 0.22);
 }
+
 .hex-border-strong {
-  border: 1px solid rgba(200, 170, 110, 0.65);
+  border: 1px solid rgba(200, 170, 110, 0.58);
 }
+
 .blue-glow {
-  box-shadow: 0 0 18px rgba(14, 165, 233, 0.22);
+  box-shadow: 0 0 22px rgba(14, 165, 233, 0.14);
 }
+
 .red-glow {
-  box-shadow: 0 0 18px rgba(244, 63, 94, 0.22);
+  box-shadow: 0 0 22px rgba(244, 63, 94, 0.14);
 }
+
 .gold-glow {
-  box-shadow: 0 0 16px rgba(200, 170, 110, 0.25);
+  box-shadow: 0 0 14px rgba(200, 170, 110, 0.22);
 }
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090e1a;
+  background: #080d18;
 }
 ::-webkit-scrollbar-thumb {
-  background: #283a5e;
-  border-radius: 3px;
+  background: #253657;
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #c8aa6e;
 }
+
+/* Active Draft Slot Broadcast Highlight */
 .slot-active-pulse {
   animation: pulseBorder 1.5s infinite ease-in-out;
+  border-left-width: 3px !important;
 }
 @keyframes pulseBorder {
-  0%, 100% { border-color: rgba(250, 204, 21, 0.95); box-shadow: 0 0 12px rgba(250, 204, 21, 0.35); }
-  50% { border-color: rgba(250, 204, 21, 0.35); box-shadow: 0 0 4px rgba(250, 204, 21, 0.1); }
+  0%, 100% {
+    border-color: rgba(250, 204, 21, 0.95);
+    box-shadow: 0 0 14px rgba(250, 204, 21, 0.32);
+  }
+  50% {
+    border-color: rgba(250, 204, 21, 0.38);
+    box-shadow: 0 0 4px rgba(250, 204, 21, 0.08);
+  }
 }
+
+/* Popover & Submenu Panels */
+.popover-panel {
+  background: rgba(11, 18, 32, 0.97);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(200, 170, 110, 0.32);
+  box-shadow: 0 20px 42px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  animation: popoverIn 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popoverIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popover-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-align: left;
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+
+.popover-item:hover {
+  background-color: rgba(30, 41, 59, 0.85);
+}
+
+/* Tree Connectors */
 .tree-connector {
   position: relative;
 }
@@ -65,6 +124,7 @@ body {
   height: 2px;
   background: rgba(200, 170, 110, 0.45);
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -72,26 +132,50 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-@media (max-width: 1023px) {
-  body {
-    padding-bottom: 68px;
-  }
-}
+
+/* Breathing room & Esports Card Polish */
 .champ-card-portrait {
-  background: radial-gradient(circle at 50% 25%, rgba(200, 170, 110, 0.16), rgba(9, 16, 29, 0.95));
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  background: radial-gradient(circle at 50% 25%, rgba(200, 170, 110, 0.12), rgba(9, 16, 29, 0.96));
+  transition: transform 0.16s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.16s ease, border-color 0.16s ease;
 }
 .champ-card-portrait:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px -4px rgba(200, 170, 110, 0.28);
+  box-shadow: 0 10px 22px -6px rgba(200, 170, 110, 0.26);
+  border-color: rgba(200, 170, 110, 0.55);
 }
+
+/* Progressive disclosure on champion cards: soften secondary pills until hover */
+#draft-champion-grid .champ-card-portrait .champ-meta-secondary {
+  opacity: 0.72;
+  transition: opacity 0.15s ease;
+}
+#draft-champion-grid .champ-card-portrait:hover .champ-meta-secondary {
+  opacity: 1;
+}
+
 .volet-tab-active {
-  background: linear-gradient(135deg, rgba(200, 170, 110, 0.28), rgba(200, 170, 110, 0.1));
-  border-color: rgba(200, 170, 110, 0.7);
+  background: linear-gradient(135deg, rgba(200, 170, 110, 0.26), rgba(200, 170, 110, 0.08));
+  border-color: rgba(200, 170, 110, 0.65);
   color: #fef3c7;
-  box-shadow: 0 0 12px rgba(200, 170, 110, 0.2);
+  box-shadow: 0 0 12px rgba(200, 170, 110, 0.18);
 }
+
 .drawer-backdrop {
-  background: rgba(4, 7, 14, 0.72);
+  background: rgba(4, 7, 14, 0.74);
   backdrop-filter: blur(6px);
+}
+
+/* Mobile ergonomics */
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: 72px;
+  }
+}
+
+@media (max-width: 639px) {
+  .popover-item {
+    min-height: 42px;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+  }
 }

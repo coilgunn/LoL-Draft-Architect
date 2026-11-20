@@ -303,6 +303,7 @@ function handleChampionFilterChange() {
   STATE.filters.teamPool = poolEl ? poolEl.value : 'ALL';
   STATE.filters.hideUnavailable = hideEl ? hideEl.checked : false;
   renderChampionPoolGrid();
+  if (typeof updateActiveFiltersBadge === 'function') updateActiveFiltersBadge();
 }
 
 function clearChampSearch() {
@@ -314,7 +315,7 @@ function clearChampSearch() {
 
 function setLaneFilter(lane) {
   STATE.filters.lane = lane;
-  document.querySelectorAll('.lane-pill').forEach(btn => {
+  document.querySelectorAll('#lane-filter-pills .lane-pill').forEach(btn => {
     const isMatch = btn.getAttribute('data-lane') === lane;
     btn.className = `lane-pill px-2 py-1 rounded text-[11px] font-semibold border transition ${
       isMatch ? 'bg-amber-500/25 text-amber-200 border-amber-500/40' : 'bg-slate-800/80 text-slate-300 hover:text-white border-slate-700'
@@ -334,6 +335,7 @@ function setDmgFilter(dmg) {
     }
   });
   renderChampionPoolGrid();
+  if (typeof updateActiveFiltersBadge === 'function') updateActiveFiltersBadge();
 }
 
 function getFilteredChampions() {
@@ -410,11 +412,12 @@ function renderChampionPoolGrid() {
     const subMeta = RIOT_SUBCLASS_MAP[c.subclass] || RIOT_SUBCLASS_MAP.Specialist;
     const dmgMeta = DMG_BADGE_MAP[c.dmg] || DMG_BADGE_MAP.AD;
     const escapedName = c.name.replace(/'/g, "\\'");
+    const rosterBadgeHtml = renderChampionRosterBadgeHtml(c.name);
 
     return `
       <div
         onclick="assignChampionToActiveSlot('${escapedName}')"
-        class="group relative rounded-xl p-2 border select-none flex flex-col justify-between ${
+        class="group relative rounded-xl p-2.5 border select-none flex flex-col justify-between ${
           isAvail
             ? 'champ-card-portrait border-slate-800/90 hover:border-amber-400/80 cursor-pointer'
             : isWhatIf
@@ -423,7 +426,7 @@ function renderChampionPoolGrid() {
         }"
       >
         <!-- Top Row: Portrait + Name + What-If Trigger Button -->
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center justify-between gap-1.5">
           <div class="flex items-center gap-2 min-w-0">
             ${renderChampAvatarHtml(c.name, 'w-10 h-10', 'rounded-lg shadow')}
             <div class="min-w-0">
@@ -437,7 +440,7 @@ function renderChampionPoolGrid() {
             class="px-1.5 py-0.5 rounded text-[10px] border transition shrink-0 ${
               isWhatIf
                 ? 'bg-rose-500 text-white border-rose-300 font-bold'
-                : 'bg-slate-800/80 text-slate-400 hover:text-amber-200 hover:border-amber-400 border-slate-700'
+                : 'champ-meta-secondary bg-slate-800/80 text-slate-400 hover:text-amber-200 hover:border-amber-400 border-slate-700'
             }"
           >
             🧪
@@ -445,16 +448,16 @@ function renderChampionPoolGrid() {
         </div>
 
         <!-- Bottom Row: Riot Subclass + Damage Tag -->
-        <div class="mt-2 space-y-1">
-          <div class="flex items-center justify-between gap-1">
-            <span class="text-[10px] px-1.5 py-0.2 rounded border truncate ${subMeta.color}">
+        <div class="mt-2 space-y-1.5">
+          <div class="champ-meta-secondary flex items-center justify-between gap-1">
+            <span class="text-[10px] px-1.5 py-0.5 rounded border truncate ${subMeta.color}">
               ${subMeta.icon} ${c.subclass}
             </span>
-            <span class="text-[10px] px-1.5 py-0.2 rounded border font-bold shrink-0 ${dmgMeta.color}">
+            <span class="text-[10px] px-1.5 py-0.5 rounded border font-bold shrink-0 ${dmgMeta.color}">
               ${c.dmg}${c.trueDmg ? '+💎' : ''}
             </span>
           </div>
-          ${renderChampionRosterBadgeHtml(c.name)}
+          ${rosterBadgeHtml ? `<div class="champ-meta-secondary">${rosterBadgeHtml}</div>` : ''}
 
           ${!isAvail ? `
             <div class="text-[10px] font-bold text-center py-0.5 rounded ${

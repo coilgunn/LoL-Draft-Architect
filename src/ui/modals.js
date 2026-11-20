@@ -40,7 +40,7 @@ function renderWhatIfModalList() {
   `).join('');
 }
 
-function openExportImportModal() {
+function buildExportStateJson() {
   const payload = {
     version: '2026.22',
     fearlessMode: STATE.fearlessMode,
@@ -50,8 +50,12 @@ function openExportImportModal() {
     teamRoster: STATE.teamRoster,
     games: STATE.games
   };
+  return JSON.stringify(payload, null, 2);
+}
+
+function openExportImportModal() {
   const ta = document.getElementById('export-import-textarea');
-  if (ta) ta.value = JSON.stringify(payload, null, 2);
+  if (ta) ta.value = buildExportStateJson();
   document.getElementById('export-import-modal').classList.remove('hidden');
 }
 
@@ -72,9 +76,11 @@ function copyStateJsonToClipboard() {
 }
 
 function downloadStandaloneJsonFile() {
+  const modal = document.getElementById('export-import-modal');
   const ta = document.getElementById('export-import-textarea');
-  if (!ta) return;
-  const blob = new Blob([ta.value], { type: 'application/json' });
+  const isModalVisible = modal && !modal.classList.contains('hidden');
+  const jsonContent = (isModalVisible && ta && ta.value.trim()) ? ta.value : buildExportStateJson();
+  const blob = new Blob([jsonContent], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
